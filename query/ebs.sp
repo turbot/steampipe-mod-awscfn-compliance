@@ -3,13 +3,13 @@ query "ebs_volume_encryption_at_rest_enabled" {
     select
       type || ' ' || name as resource,
       case
-        when (properties_src -> 'Encrypted') is null then 'alarm'
-        when (properties_src ->> 'Encrypted')::bool then 'ok'
+        when (properties -> 'Encrypted') is null then 'alarm'
+        when (properties ->> 'Encrypted')::bool then 'ok'
         else 'alarm'
       end as status,
       name || case
-        when (properties_src -> 'Encrypted') is null then ' ''Encrypted'' is not defined'
-        when (properties_src ->> 'Encrypted')::bool then ' Encrypted.'
+        when (properties -> 'Encrypted') is null then ' ''Encrypted'' is not defined'
+        when (properties ->> 'Encrypted')::bool then ' Encrypted.'
         else ' not Encrypted.'
       end || '.' as reason
       ${local.tag_dimensions_sql}
@@ -20,6 +20,39 @@ query "ebs_volume_encryption_at_rest_enabled" {
       type = 'AWS::EC2::Volume';
   EOQ
 }
+# To check both properties and properties_src. Adhoc query
+query "ebs_volume_encryption_at_rest_enabled_newformat" {
+  sql = <<-EOQ
+    select
+      type || ' ' || name as resource,
+      case
+        when ( properties is not null  and (properties -> 'Encrypted') is null )
+        or ( properties_src is not null  and (properties_src -> 'Encrypted') is null )
+        then 'alarm'
+        when (properties is not null and (properties ->> 'Encrypted')::bool)
+        or (properties_src is not null and (properties_src ->> 'Encrypted')::bool)
+         then 'ok'
+        else 'alarm'
+      end as status,
+      name || case
+        when ( properties is not null  and (properties -> 'Encrypted') is null )
+        or ( properties_src is not null  and (properties_src -> 'Encrypted') is null )
+        then ' ''Encrypted'' is not defined'
+        when (properties is not null and (properties ->> 'Encrypted')::bool)
+        or (properties_src is not null and (properties_src ->> 'Encrypted')::bool)
+        then ' Encrypted.'
+        else ' not Encrypted.'
+      end || '.' as reason
+      --${local.tag_dimensions_sql}
+      --${local.common_dimensions_sql}
+    from
+      awscfn_resource
+    where
+      type = 'AWS::EC2::Volume';
+  EOQ
+}
+
+
 
 query "ebs_snapshot_copy_encrypted_with_kms_cmk" {
   sql = <<-EOQ
