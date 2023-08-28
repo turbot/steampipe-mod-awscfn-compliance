@@ -10,8 +10,9 @@ benchmark "ebs" {
 
   children = [
     control.ebs_snapshot_copy_encrypted_with_kms_cmk,
+    control.ebs_snapshot_copy_encrypted_with_kms_cmk_newformat,
     control.ebs_volume_encryption_at_rest_enabled,
-    control.ebs_snapshot_copy_encrypted_with_kms_cmk_newformat
+    control.ebs_volume_encryption_at_rest_enabled_newformat
   ]
 
   tags = merge(local.ebs_compliance_common_tags, {
@@ -28,7 +29,7 @@ control "ebs_volume_encryption_at_rest_enabled" {
 }
 
 control "ebs_volume_encryption_at_rest_enabled_newformat" {
-  title       = "EBS volumes should have encryption enabled"
+  title       = "**EBS volumes should have encryption enabled"
   description = "Because sensitive data can exist and to help protect data at rest, ensure encryption is enabled for your Amazon Elastic Block Store (Amazon EBS) volumes."
   query         = query.ebs_volume_encryption_at_rest_enabled_newformat
 
@@ -44,7 +45,7 @@ control "ebs_snapshot_copy_encrypted_with_kms_cmk" {
 }
 # This is in the new format to validate both properties & properties_src
 control "ebs_snapshot_copy_encrypted_with_kms_cmk_newformat" {
-  title       = "EBS snapshots should be encrypted with KMS CMK"
+  title       = "**EBS snapshots should be encrypted with KMS CMK"
   description = "This control checks whether EBS snapshots are encrypted with KMS CMK."
   query       = query.ebs_snapshot_copy_encrypted_with_kms_cmk_newformat
 
