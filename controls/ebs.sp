@@ -10,7 +10,8 @@ benchmark "ebs" {
 
   children = [
     control.ebs_snapshot_copy_encrypted_with_kms_cmk,
-    control.ebs_volume_encryption_at_rest_enabled
+    control.ebs_volume_encryption_at_rest_enabled,
+    control.ebs_snapshot_copy_encrypted_with_kms_cmk_newformat
   ]
 
   tags = merge(local.ebs_compliance_common_tags, {
@@ -30,6 +31,14 @@ control "ebs_snapshot_copy_encrypted_with_kms_cmk" {
   title       = "EBS snapshots should be encrypted with KMS CMK"
   description = "This control checks whether EBS snapshots are encrypted with KMS CMK."
   query       = query.ebs_snapshot_copy_encrypted_with_kms_cmk
+
+  tags = local.ebs_compliance_common_tags
+}
+# This is in the new format to validate both properties & properties_src
+control "ebs_snapshot_copy_encrypted_with_kms_cmk_newformat" {
+  title       = "EBS snapshots should be encrypted with KMS CMK"
+  description = "This control checks whether EBS snapshots are encrypted with KMS CMK."
+  query       = query.ebs_snapshot_copy_encrypted_with_kms_cmk_newformat
 
   tags = local.ebs_compliance_common_tags
 }
